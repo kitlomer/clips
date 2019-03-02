@@ -1,11 +1,13 @@
 import numpy as np
 import librosa
 import os
+from scipy import signal
 #import operator
 #last = operator.itemgetter(-1)
 lens=[]
 sr = 22050
 totallen=13*60+9
+k=0.97
 
 while sum(lens)<totallen:
     len=abs(np.random.normal(7,4))
@@ -25,11 +27,13 @@ starts= np.insert(start,0,0)
 for i,(start0,end0) in enumerate(zip(starts,ends)):
     ylil=y[int(start0):int(end0)]
     filename = os.path.join('C:\\Users\\A\\Downloads\\120605obama\clips0', str(i) + '.wav')
-    z = librosa.zero_crossings(ylil)
+    ylil0 = signal.lfilter([1], [1, -k], ylil)
+    z = librosa.zero_crossings(ylil0)
     zc = np.nonzero(z)
     zclast=zc[0][-10]
-    ylil1=ylil[:zclast]
-    librosa.output.write_wav(filename, ylil1, sr)
+    ylil1=ylil0[:zclast]
+    ylil2=signal.lfilter([1,-k],[1],ylil1)
+    librosa.output.write_wav(filename, ylil2, sr)
 
 
 
